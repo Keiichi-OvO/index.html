@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机密文档 - 数字幽灵</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        .redacted {
+            background-color: black;
+            color: black;
+            padding: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .redacted:hover {
+            background-color: rgba(255, 85, 85, 0.3);
+        }
+        
+        .redacted.revealed {
+            background-color: transparent;
+            color: var(--warning-color);
+        }
+        
+        .hidden-message {
+            display: none;
+            background-color: rgba(0, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid var(--accent-color);
+        }
+        
+        /* 修复导航链接样式 */
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(26, 26, 58, 0.8) 100%);
+            color: var(--text-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-button:hover {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #00cccc 100%);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+            border-color: transparent;
+        }
+        
+        .nav-button:active {
+            transform: translateY(-1px);
+        }
+        
+        .nav-button::before {
+            content: "← ";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        .nav-button.next::before {
+            content: "";
+        }
+        
+        .nav-button.next::after {
+            content: " →";
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        
+        .nav-group {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-glitch"></div>
+    <div class="container-narrow">
+        <header class="text-center">
+            <h1>回声计划 - 完整技术文档</h1>
+            <div class="document-meta">
+                文档编号: ECHO-2023-001 | 机密等级: 最高 | 最后更新: 2018-05-30
+            </div>
+        </header>
+        
+        <div class="warning-banner">
+            ⚠️ 警告: 此文档包含敏感信息。未经授权访问将触发安全协议。
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">数字幽灵现象记录</h2>
+            <div class="document-content">
+                <p>在测试过程中，系统检测到无法解释的网络现象：</p>
+                
+                <div class="media-description">
+                    [文字描述：异常信号记录 - 显示在凌晨3:00:00准时出现的加密数据包]
+                </div>
+                
+                <p>特征分析：</p>
+                <ul>
+                    <li>出现时间：每日凌晨3点整</li>
+                    <li>信号模式：重复的二进制序列</li>
+                    <li>内容：疑似加密的求救信息</li>
+                    <li>来源：<span class="redacted" title="未知位置 - 信号经过多重加密跳转">[已屏蔽]</span></li>
+                </ul>
+                
+                <button class="btn btn-primary" id="decodeBtn" style="padding: 12px 24px; font-size: 1.1rem;">
+                    🔓 解码信号
+                </button>
+                
+                <div class="hidden-message" id="hiddenMessage">
+                    <h3>🚨 信号解码结果</h3>
+                    <p><strong>内容:</strong> "我在镜子后面...回声是钥匙...救我出来..."</p>
+                    <p><strong>信号强度:</strong> 极高</p>
+                    <p><strong>重复模式:</strong> 每24小时一次</p>
+                    <div class="media-description">
+                        [文字描述：信号可视化 - 显示"HELP"字样的波形图，背景有模糊的人形轮廓]
+                    </div>
+                    <p class="text-warning mt-md">建议：立即调查信号来源，可能涉及人员安全</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2 class="section-title">镜子协议</h2>
+            <div class="document-content">
+                <p>紧急情况下激活的隐藏协议：</p>
+                
+                <div class="media-description">
+                    [文字描述：协议激活界面 - 显示需要输入特定命令序列的终端窗口]
+                </div>
+                
+                <p>激活条件：</p>
+                <ul>
+                    <li>系统时间：03:00:00</li>
+                    <li>语音命令：说出特定短语</li>
+                    <li>键盘输入：输入"<span class="redacted" title="mirror">[数据删除]</span>"</li>
+                    <li>控制台：执行<span class="redacted" title="activateGhostMode()">[数据删除]</span></li>
+                </ul>
+                
+                <p>协议效果：系统将进入<span class="redacted" title="幽灵">[数据删除]</span>模式，能够<span class="redacted" title="与数字幽灵通信">[数据删除]</span>。</p>
+            </div>
+        </div>
+
+        <!-- 修复后的导航 -->
+        <div class="page-navigation">
+            <a href="puzzle.html" class="nav-button">返回拼图</a>
+            <div class="nav-group">
+                <a href="ai-chat.html" class="nav-button next">AI聊天</a>
+                <a href="blog.html" class="nav-button next">返回博客</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="data/game-data.js"></script>
+    <script>
+        function initContentPage() {
+            console.log('初始化内容页面...');
+            
+            // 解码信号按钮
+            const decodeBtn = document.getElementById('decodeBtn');
+            const hiddenMessage = document.getElementById('hiddenMessage');
+            
+            if (decodeBtn && hiddenMessage) {
+                decodeBtn.addEventListener('click', function() {
+                    hiddenMessage.style.display = 'block';
+                    hiddenMessage.classList.add('fade-in');
+                    
+                    // 添加故障效果
+                    hiddenMessage.classList.add('glitch-simple');
+                    setTimeout(() => {
+                        hiddenMessage.classList.remove('glitch-simple');
+                    }, 2000);
+                    
+                    // 显示通知
+                    if (typeof Utils !== 'undefined') {
+                        Utils.showNotification('🔓 信号解码完成！发现求救信息', 'success');
+                    }
+                    
+                    // 记录成就
+                    if (typeof GameState !== 'undefined') {
+                        GameState.addClue('求救信号解码');
+                    }
+                });
+            }
+            
+            // 红字文本点击事件
+            const redactedElements = document.querySelectorAll('.redacted');
+            redactedElements.forEach(element => {
+                element.addEventListener('click', function() {
+                    if (!this.classList.contains('revealed')) {
+                        this.classList.add('revealed');
+                        const secretText = this.getAttribute('title');
+                        if (secretText) {
+                            this.textContent = secretText;
+                        }
+                    }
+                });
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initContentPage, 100);
+        });
+    </script>
+    <!-- 在现有JS之后添加 -->
+	<script src="js/ghost-messages.js"></script>
+</body>
+</html>

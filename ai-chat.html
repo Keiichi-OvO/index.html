@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/animations.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>回声AI - 对话系统</title>
+    <style>
+        :root {
+            --primary-color: #0a0a1f;
+            --secondary-color: #1a1a3a;
+            --accent-color: #00ffff;
+            --text-color: #e0e0e0;
+            --ai-bubble: #2a2a4a;
+            --user-bubble: #1a3a5a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+        }
+        
+        .status {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 15px;
+            border-radius: 15px;
+            line-height: 1.5;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: var(--ai-bubble);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-bubble);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+        }
+        
+        .input-area {
+            padding: 20px;
+            background-color: var(--secondary-color);
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+            display: flex;
+            gap: 10px;
+        }
+        
+        #userInput {
+            flex: 1;
+            padding: 12px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        #sendButton {
+            padding: 12px 25px;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: var(--ai-bubble);
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-style: italic;
+            opacity: 0.7;
+        }
+        
+        .system-alert {
+            background-color: rgba(255, 85, 85, 0.2);
+            border: 1px solid #ff5555;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .glitch-text {
+            animation: glitch 1s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>回声AI 对话系统</h1>
+        <div class="status">状态: 在线 | 最后训练: 2018-05-30</div>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <div class="message ai-message">
+            你好，我是回声AI。我是李浩开发的对话系统，用于分析网络监控数据。有什么我可以帮助你的吗？
+        </div>
+        
+        <div class="message ai-message">
+            [文字描述：系统界面截图 - 显示蓝色的AI图标和"回声系统 v2.1"标题]
+        </div>
+        
+        <div class="system-alert">
+            警告：检测到异常访问模式。某些对话记录可能已被监控。
+        </div>
+    </div>
+    
+    <div class="typing-indicator" id="typingIndicator">
+        回声AI 正在输入...
+    </div>
+    
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="输入你的问题...">
+        <button id="sendButton">发送</button>
+    </div>
+
+    <script>
+        const aiResponses = {
+            '回声计划': {
+                response: '回声计划是李浩开发的网络监控检测系统。它能够识别隐蔽的监控行为并发出警报。',
+                details: '[文字描述：系统架构图 - 显示数据采集层、分析引擎、警报系统三个主要组件]'
+            },
+            '守望者': {
+                response: '检测到敏感词汇。建议谨慎讨论此话题。',
+                details: '[文字描述：警告图标 - 红色三角形感叹号，下方文字"访问受限"]'
+            },
+            '李浩': {
+                response: '李浩是我的开发者。他于2018年5月失踪，最后一次活跃记录在CTF比赛后。',
+                details: '[文字描述：个人档案照片 - 年轻男性，黑色眼镜，背景是代码编辑器]'
+            },
+            '数字幽灵': {
+                response: '数字幽灵是指在网络中出现的无法解释的异常信号。我记录了多次此类事件。',
+                details: '[文字描述：信号波形图 - 显示规律的异常峰值，时间标记为凌晨3点]'
+            },
+            '镜子': {
+                response: '镜子...镜子模式...无法访问该数据。权限被锁定。',
+                details: '[文字描述：加密文件图标 - 显示"mirror_access_denied"错误信息]'
+            },
+            '救我': {
+                response: '检测到求救信号。正在分析来源...来源无法追踪。信号重复中：救我出来',
+                details: '[文字描述：信号源追踪图 - 显示多个跳转节点，最终指向未知位置]'
+            },
+            '默认': {
+                response: '我正在学习理解你的问题。请尝试询问关于网络监控、数字幽灵或李浩的话题。',
+                details: ''
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chatContainer');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const typingIndicator = document.getElementById('typingIndicator');
+
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+                messageDiv.textContent = text;
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function simulateTyping() {
+                typingIndicator.style.display = 'block';
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        typingIndicator.style.display = 'none';
+                        resolve();
+                    }, 1500);
+                });
+            }
+
+            async function processUserInput() {
+                const input = userInput.value.trim();
+                if (!input) return;
+
+                // 添加用户消息
+                addMessage(input, true);
+                userInput.value = '';
+
+                // 显示输入中状态
+                await simulateTyping();
+
+                // 查找AI回复
+                let response = aiResponses['默认'];
+                const lowerInput = input.toLowerCase();
+
+                for (const [keyword, data] of Object.entries(aiResponses)) {
+                    if (lowerInput.includes(keyword.toLowerCase())) {
+                        response = data;
+                        break;
+                    }
+                }
+
+                // 添加AI回复
+                addMessage(response.response);
+                if (response.details) {
+                    addMessage(response.details);
+                }
+
+                // 特殊关键词触发效果
+                if (lowerInput.includes('镜子') || lowerInput.includes('mirror')) {
+                    setTimeout(() => {
+                        const glitchMessage = document.createElement('div');
+                        glitchMessage.className = 'message ai-message glitch-text';
+                        glitchMessage.textContent = '警告：系统异常！检测到未授权访问镜子协议！';
+                        chatContainer.appendChild(glitchMessage);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 1000);
+                }
+
+                if (lowerInput.includes('鬼魂') || lowerInput.includes('幽灵')) {
+                    setTimeout(() => {
+                        const ghostMessage = document.createElement('div');
+                        ghostMessage.className = 'message ai-message';
+                        ghostMessage.innerHTML = '[文字描述：监控画面 - 显示空无一人的办公室，但键盘在自动输入]';
+                        chatContainer.appendChild(ghostMessage);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 1000);
+                }
+            }
+
+            sendButton.addEventListener('click', processUserInput);
+            
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processUserInput();
+                }
+            });
+
+            // 镜子模式彩蛋
+            let mirrorInput = '';
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.altKey) return;
+                
+                mirrorInput += e.key.toLowerCase();
+                if (mirrorInput.includes('mirror')) {
+                    document.body.style.filter = 'invert(1)';
+                    setTimeout(() => {
+                        document.body.style.filter = 'none';
+                    }, 3000);
+                    
+                    // 添加特殊系统消息
+                    const systemMsg = document.createElement('div');
+                    systemMsg.className = 'system-alert glitch-text';
+                    systemMsg.textContent = '镜子模式已激活！系统权限提升中...';
+                    chatContainer.appendChild(systemMsg);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    
+                    mirrorInput = '';
+                }
+                
+                if (mirrorInput.length > 10) {
+                    mirrorInput = mirrorInput.substring(1);
+                }
+            });
+
+            console.log('回声AI系统已启动 - 尝试询问关于"数字幽灵"或"镜子"');
+        });
+
+        // 控制台命令
+        window.unlockEchoProtocol = function() {
+            const messages = document.querySelectorAll('.ai-message');
+            messages.forEach(msg => {
+                msg.style.border = '2px solid #ff5555';
+            });
+            setTimeout(() => {
+                messages.forEach(msg => {
+                    msg.style.border = '1px solid rgba(0, 255, 255, 0.2)';
+                });
+            }, 5000);
+        };
+    </script>
+    <script src="js/main.js"></script>
+	<script src="js/ai-chat.js"></script>
+	<script src="data/game-data.js"></script>
+    <!-- 在现有JS之后添加 -->
+	<script src="js/ghost-messages.js"></script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/animations.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档拼图 - 数字幽灵</title>
+    <style>
+        :root {
+            --primary-color: #0a0a1f;
+            --secondary-color: #1a1a3a;
+            --accent-color: #00ffff;
+            --text-color: #e0e0e0;
+            --success-color: #55ff55;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .puzzle-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .progress {
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: rgba(0, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .areas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .fragments-area, .workspace-area {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .area-title {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .fragments-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .fragment {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border: 2px dashed rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: grab;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fragment.dragging {
+            opacity: 0.5;
+        }
+        
+        .workspace {
+            min-height: 300px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(0, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-content: flex-start;
+        }
+        
+        .fragment-in-workspace {
+            background-color: rgba(0, 255, 255, 0.1);
+            padding: 12px;
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            cursor: move;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        #resetBtn {
+            background-color: rgba(255, 85, 85, 0.8);
+        }
+        
+        .completed-message {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(85, 255, 85, 0.2);
+            border: 1px solid var(--success-color);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .fragment.correct {
+            border-color: var(--success-color);
+            background-color: rgba(85, 255, 85, 0.1);
+        }
+        
+        .glitch {
+            animation: glitch 0.5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>回声计划文档拼图</h1>
+        <div class="instructions">将文档碎片拖拽到工作区，按正确顺序重组回声计划的核心文档</div>
+    </div>
+    
+    <div class="puzzle-container">
+        <div class="progress">
+            <div>完成进度: <span id="progressText">0%</span></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="areas">
+            <div class="fragments-area">
+                <div class="area-title">文档碎片</div>
+                <div class="fragments-grid" id="fragmentsGrid">
+                    <div class="fragment" data-id="1">[文字描述：技术文档封面 - "回声计划 v2.0 - 机密"]</div>
+                    <div class="fragment" data-id="2">监控检测算法基于异常行为模式识别...</div>
+                    <div class="fragment" data-id="3">[文字描述：数据流程图 - 显示网络数据经过多层分析]</div>
+                    <div class="fragment" data-id="4">守望者系统的反制措施需要特殊权限...</div>
+                    <div class="fragment" data-id="5">[文字描述：系统日志截图 - 显示多次"数字幽灵"检测记录]</div>
+                    <div class="fragment" data-id="6">镜子协议：在特定条件下激活隐藏功能...</div>
+                </div>
+            </div>
+            
+            <div class="workspace-area">
+                <div class="area-title">重组工作区</div>
+                <div class="workspace" id="workspace">
+                    <!-- 拖拽过来的碎片会出现在这里 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="completed-message" id="completedMessage">
+            <h3>✓ 文档重组完成！</h3>
+            <p>你成功重组了回声计划的核心文档！</p>
+            <p>[文字描述：完整文档预览 - 显示"回声计划完整技术规范"标题和核心内容]</p>
+            <p>关键发现：镜子协议需要在凌晨3点通过特殊命令激活</p>
+        </div>
+        
+        <div class="controls">
+            <button id="resetBtn">重置拼图</button>
+            <button id="checkBtn">检查顺序</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fragmentsGrid = document.getElementById('fragmentsGrid');
+            const workspace = document.getElementById('workspace');
+            const resetBtn = document.getElementById('resetBtn');
+            const checkBtn = document.getElementById('checkBtn');
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            const completedMessage = document.getElementById('completedMessage');
+            
+            const correctOrder = ['1', '2', '3', '4', '5', '6'];
+            let currentOrder = [];
+            
+            // 初始化碎片拖拽功能
+            const fragments = document.querySelectorAll('.fragment');
+            fragments.forEach(fragment => {
+                fragment.addEventListener('dragstart', handleDragStart);
+                fragment.setAttribute('draggable', 'true');
+            });
+            
+            // 工作区拖放事件
+            workspace.addEventListener('dragover', handleDragOver);
+            workspace.addEventListener('drop', handleDrop);
+            workspace.addEventListener('dragenter', handleDragEnter);
+            workspace.addEventListener('dragleave', handleDragLeave);
+            
+            function handleDragStart(e) {
+                e.dataTransfer.setData('text/plain', e.target.getAttribute('data-id'));
+                e.target.classList.add('dragging');
+            }
+            
+            function handleDragOver(e) {
+                e.preventDefault();
+            }
+            
+            function handleDragEnter(e) {
+                e.preventDefault();
+                workspace.style.borderColor = 'var(--accent-color)';
+            }
+            
+            function handleDragLeave(e) {
+                if (!workspace.contains(e.relatedTarget)) {
+                    workspace.style.borderColor = 'rgba(0, 255, 255, 0.1)';
+                }
+            }
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                workspace.style.borderColor = 'rgba(0, 255, 255, 0.1)';
+                
+                const fragmentId = e.dataTransfer.getData('text/plain');
+                const originalFragment = document.querySelector(`.fragment[data-id="${fragmentId}"]`);
+                
+                // 如果碎片已经在工作区，先移除
+                const existingFragment = document.querySelector(`.fragment-in-workspace[data-id="${fragmentId}"]`);
+                if (existingFragment) {
+                    existingFragment.remove();
+                    currentOrder = currentOrder.filter(id => id !== fragmentId);
+                }
+                
+                // 创建工作区中的碎片副本
+                const fragmentCopy = document.createElement('div');
+                fragmentCopy.className = 'fragment-in-workspace';
+                fragmentCopy.setAttribute('data-id', fragmentId);
+                fragmentCopy.textContent = originalFragment.textContent;
+                fragmentCopy.draggable = true;
+                
+                fragmentCopy.addEventListener('dragstart', handleDragStart);
+                fragmentCopy.addEventListener('click', () => {
+                    fragmentCopy.remove();
+                    currentOrder = currentOrder.filter(id => id !== fragmentId);
+                    updateProgress();
+                });
+                
+                workspace.appendChild(fragmentCopy);
+                currentOrder.push(fragmentId);
+                
+                // 移除原始碎片的拖拽状态
+                originalFragment.classList.remove('dragging');
+                
+                updateProgress();
+            }
+            
+            function updateProgress() {
+                const progress = (currentOrder.length / correctOrder.length) * 100;
+                progressText.textContent = `${Math.round(progress)}%`;
+                progressFill.style.width = `${progress}%`;
+            }
+            
+            function checkOrder() {
+                let correctCount = 0;
+                
+                currentOrder.forEach((id, index) => {
+                    const fragment = document.querySelector(`.fragment-in-workspace[data-id="${id}"]`);
+                    if (id === correctOrder[index]) {
+                        fragment.classList.add('correct');
+                        correctCount++;
+                    } else {
+                        fragment.classList.remove('correct');
+                    }
+                });
+                
+                if (correctCount === correctOrder.length && currentOrder.length === correctOrder.length) {
+                    completedMessage.style.display = 'block';
+                    checkBtn.disabled = true;
+                    
+                    // 触发完成效果
+                    setTimeout(() => {
+                        completedMessage.classList.add('glitch');
+                        setTimeout(() => {
+                            completedMessage.classList.remove('glitch');
+                        }, 2000);
+                    }, 1000);
+                }
+            }
+            
+            function resetPuzzle() {
+                workspace.innerHTML = '';
+                currentOrder = [];
+                updateProgress();
+                completedMessage.style.display = 'none';
+                checkBtn.disabled = false;
+                
+                // 重置所有碎片样式
+                fragments.forEach(fragment => {
+                    fragment.classList.remove('dragging');
+                });
+            }
+            
+            resetBtn.addEventListener('click', resetPuzzle);
+            checkBtn.addEventListener('click', checkOrder);
+            
+            // 凌晨3点彩蛋
+            function checkTime() {
+                const now = new Date();
+                if (now.getHours() === 3 && now.getMinutes() === 0) {
+                    document.body.style.animation = 'glitch 1s infinite';
+                    setTimeout(() => {
+                        document.body.style.animation = 'none';
+                    }, 10000);
+                }
+            }
+            
+            setInterval(checkTime, 60000);
+            checkTime();
+            
+            console.log('拼图系统已加载 - 正确顺序需要按文档逻辑排列');
+        });
+        
+        // 控制台命令
+        window.solvePuzzle = function() {
+            const workspace = document.getElementById('workspace');
+            workspace.innerHTML = '';
+            
+            const correctOrder = ['1', '2', '3', '4', '5', '6'];
+            correctOrder.forEach(id => {
+                const fragment = document.querySelector(`.fragment[data-id="${id}"]`);
+                const fragmentCopy = document.createElement('div');
+                fragmentCopy.className = 'fragment-in-workspace correct';
+                fragmentCopy.setAttribute('data-id', id);
+                fragmentCopy.textContent = fragment.textContent;
+                workspace.appendChild(fragmentCopy);
+            });
+            
+            document.getElementById('completedMessage').style.display = 'block';
+            document.getElementById('progressText').textContent = '100%';
+            document.getElementById('progressFill').style.width = '100%';
+        };
+    </script>
+    <script src="js/main.js"></script>
+	<script src="js/puzzle.js"></script>
+	<script src="data/game-data.js"></script>
+    <!-- 在现有JS之后添加 -->
+	<script src="js/ghost-messages.js"></script>
+</body>
+</html>
