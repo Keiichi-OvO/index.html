@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件系统 - 数字幽灵</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        /* 邮件界面专用样式 */
+        .email-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            border-right: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .email-list {
+            width: 350px;
+            background-color: var(--secondary-color);
+            border-right: 1px solid rgba(0, 255, 255, 0.2);
+            overflow-y: auto;
+        }
+        
+        .email-list-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .email-items {
+            list-style: none;
+        }
+        
+        .email-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .email-item.active {
+            background-color: rgba(0, 255, 255, 0.1);
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .email-item.unread {
+            background-color: var(--email-unread);
+            font-weight: bold;
+        }
+        
+        .email-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .password-section {
+            background-color: rgba(0, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .clue-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-glitch"></div>
+    <div class="email-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1 class="glitch" data-text="邮件系统">邮件系统</h1>
+                <p>数字幽灵项目存档</p>
+            </div>
+            
+            <button class="btn btn-primary" id="composeBtn">撰写新邮件</button>
+            
+            <ul class="list-unstyled mt-lg">
+                <li class="list-item active">收件箱 (5)</li>
+                <li class="list-item">已发送</li>
+                <li class="list-item">草稿</li>
+                <li class="list-item">垃圾邮件</li>
+            </ul>
+            
+            <div class="card mt-xl">
+                <h3>线索收集</h3>
+                <div class="list-unstyled">
+                    <div class="list-item clue-item" data-clue="ctf">CTF比赛信息</div>
+                    <div class="list-item clue-item" data-clue="awards">李浩获奖记录</div>
+                    <div class="list-item clue-item" data-clue="calendar">2018年5月日历</div>
+                    <div class="list-item clue-item" data-clue="timeline">项目时间线</div>
+                    <div class="list-item clue-item" data-clue="format">日期格式提示</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 邮件列表 -->
+        <div class="email-list">
+            <div class="email-list-header">
+                <h2>收件箱</h2>
+                <input type="text" class="input mt-sm" placeholder="搜索邮件...">
+            </div>
+            
+            <ul class="email-items" id="emailList">
+                <li class="email-item unread active" data-email="email1">
+                    <div class="flex-between">
+                        <strong>网络安全协会</strong>
+                        <span class="text-muted">2018-05-20</span>
+                    </div>
+                    <div class="text-accent mt-xs">CTF比赛决赛通知</div>
+                    <div class="text-muted mt-xs">恭喜您进入全国CTF网络安全大赛决赛...</div>
+                </li>
+                <li class="email-item unread" data-email="email2">
+                    <div class="flex-between">
+                        <strong>公司人力资源</strong>
+                        <span class="text-muted">2018-05-18</span>
+                    </div>
+                    <div class="text-accent mt-xs">关于李浩的表彰决定</div>
+                    <div class="text-muted mt-xs">鉴于李浩在网络安全领域的杰出表现...</div>
+                </li>
+                <li class="email-item" data-email="email3">
+                    <div class="flex-between">
+                        <strong>张明</strong>
+                        <span class="text-muted">2018-05-15</span>
+                    </div>
+                    <div class="text-accent mt-xs">回声项目进展</div>
+                    <div class="text-muted mt-xs">李浩，回声项目的核心算法已经完成...</div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 邮件内容区域 -->
+        <div class="email-content">
+            <div class="email-header">
+                <h2>CTF比赛决赛通知</h2>
+                <div class="flex-between text-muted mt-sm">
+                    <div><strong>发件人:</strong> 网络安全协会 &lt;ctf@cybersecurity.org&gt;</div>
+                    <div><strong>日期:</strong> 2018年5月20日 14:30</div>
+                </div>
+            </div>
+            
+            <div class="email-body mt-lg">
+                <p>尊敬的李浩先生：</p>
+                
+                <p>恭喜您成功进入全国CTF网络安全大赛决赛！您的团队在初赛中表现出色，特别是在密码学和漏洞挖掘方面的能力令人印象深刻。</p>
+                
+                <p><strong>决赛详情：</strong></p>
+                <ul>
+                    <li><strong>日期：</strong>2018年5月23日</li>
+                    <li><strong>时间：</strong>上午9:00 - 下午6:00</li>
+                    <li><strong>地点：</strong>北京国际会议中心</li>
+                    <li><strong>比赛形式：</strong>线上+线下混合模式</li>
+                </ul>
+                
+                <p>请您务必准时参加。决赛将包含多个挑战类别，包括但不限于：</p>
+                <ul>
+                    <li>Web安全</li>
+                    <li>密码学</li>
+                    <li>逆向工程</li>
+                    <li>数字取证</li>
+                </ul>
+                
+                <p>我们期待您在决赛中的精彩表现！</p>
+                
+                <p>祝好，<br>
+                网络安全协会组委会</p>
+            </div>
+            
+            <div class="password-section">
+                <h3>访问李浩的博客</h3>
+                <p>请输入密码以访问李浩的个人博客：</p>
+                <div class="flex mt-md">
+                    <input type="password" class="input" id="passwordInput" placeholder="输入密码 (YYMMDD格式)">
+                    <button class="btn btn-primary" id="submitPassword" style="border-radius: 0 4px 4px 0; margin-left: -1px;">进入</button>
+                </div>
+                <p class="text-muted mt-sm">提示：密码与李浩的重要日期有关，格式为年年月月日日</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 线索模态框 -->
+    <div class="clue-modal" id="clueModal">
+        <div class="card" style="max-width: 600px; width: 90%; position: relative;">
+            <button class="btn" id="closeModal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--accent-color); font-size: 1.5rem;">&times;</button>
+            <div id="clueContent">
+                <!-- 动态加载线索内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局通知 -->
+    <div id="global-notification" style="display: none;"></div>
+
+    <script src="js/main.js"></script>
+    <script src="js/password.js"></script>
+    <script src="data/game-data.js"></script>
+    <script>
+        // 邮件系统专用JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('邮件系统初始化...');
+            
+            // 初始化密码系统
+            if (typeof PasswordSystem !== 'undefined') {
+                PasswordSystem.initPasswordInput('passwordInput', 'submitPassword', 'email');
+            } else {
+                console.error('PasswordSystem未加载');
+            }
+            
+            // 邮件点击事件
+            const emailItems = document.querySelectorAll('.email-item');
+            emailItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // 移除所有active类
+                    emailItems.forEach(i => i.classList.remove('active'));
+                    // 添加active类到当前项
+                    this.classList.add('active');
+                    // 标记为已读
+                    this.classList.remove('unread');
+                    
+                    const emailId = this.getAttribute('data-email');
+                    loadEmailContent(emailId);
+                });
+            });
+            
+            // 线索点击事件
+            const clueItems = document.querySelectorAll('.clue-item');
+            const clueModal = document.getElementById('clueModal');
+            const closeModal = document.getElementById('closeModal');
+            const clueContent = document.getElementById('clueContent');
+            
+            clueItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const clueType = this.getAttribute('data-clue');
+                    showClueModal(clueType);
+                });
+            });
+            
+            // 关闭模态框
+            closeModal.addEventListener('click', function() {
+                clueModal.style.display = 'none';
+            });
+            
+            // 点击模态框外部关闭
+            clueModal.addEventListener('click', function(e) {
+                if (e.target === clueModal) {
+                    clueModal.style.display = 'none';
+                }
+            });
+            
+            // 加载邮件内容
+            function loadEmailContent(emailId) {
+                console.log('加载邮件:', emailId);
+                // 在实际项目中，这里会根据emailId加载不同的邮件内容
+                // 这里只是简单示例
+            }
+            
+            // 显示线索模态框
+            function showClueModal(clueType) {
+                if (typeof GameData !== 'undefined') {
+                    const clueContent = GameData.getClueContent(clueType);
+                    document.getElementById('clueContent').innerHTML = clueContent;
+                    document.getElementById('clueModal').style.display = 'flex';
+                    
+                    // 记录线索发现
+                    if (typeof GameState !== 'undefined') {
+                        GameState.addClue(clueType);
+                    }
+                } else {
+                    // 备用内容
+                    const content = getClueContentBackup(clueType);
+                    document.getElementById('clueContent').innerHTML = content;
+                    document.getElementById('clueModal').style.display = 'flex';
+                }
+            }
+            
+            // 备用线索内容
+            function getClueContentBackup(clueType) {
+                const contents = {
+                    'ctf': `
+                        <h3>CTF比赛信息</h3>
+                        <p><strong>比赛名称：</strong>全国CTF网络安全大赛</p>
+                        <p><strong>决赛日期：</strong>2018年5月23日</p>
+                        <p><strong>线索提示：</strong>这个日期可能是重要密码的组成部分</p>
+                    `,
+                    'awards': `
+                        <h3>李浩获奖记录</h3>
+                        <p><strong>2018年5月：</strong>全国CTF网络安全大赛一等奖</p>
+                        <p><strong>线索提示：</strong>最近的重大成就日期可能被用作密码</p>
+                    `,
+                    'calendar': `
+                        <h3>2018年5月日历</h3>
+                        <p>标记日期：2018年5月23日</p>
+                        <p><strong>线索提示：</strong>标记的日期(23)可能是密码的一部分</p>
+                    `,
+                    'timeline': `
+                        <h3>项目时间线</h3>
+                        <p>最重要事件：2018年5月23日 - CTF比赛决赛</p>
+                        <p><strong>线索提示：</strong>时间线中最重要的事件日期可能是完整密码</p>
+                    `,
+                    'format': `
+                        <h3>日期格式提示</h3>
+                        <p><strong>密码格式：</strong>YYMMDD（年年月月日日）</p>
+                        <p><strong>示例：</strong>2018年5月23日 → 180523</p>
+                    `
+                };
+                return contents[clueType] || '<p>线索未找到</p>';
+            }
+            
+            // 撰写邮件按钮
+            const composeBtn = document.getElementById('composeBtn');
+            if (composeBtn) {
+                composeBtn.addEventListener('click', function() {
+                    if (typeof Utils !== 'undefined') {
+                        Utils.showNotification('邮件撰写功能开发中...', 'info');
+                    } else {
+                        alert('邮件撰写功能开发中...');
+                    }
+                });
+            }
+            
+            console.log('邮件系统初始化完成');
+        });
+    </script>
+    <!-- 在现有JS之后添加 -->
+	<script src="js/ghost-messages.js"></script>
+</body>
+</html>

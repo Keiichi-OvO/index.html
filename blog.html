@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>李浩的博客 - 数字幽灵</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        .blog-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        .blog-posts {
+            display: grid;
+            gap: 30px;
+        }
+        
+        .post {
+            background-color: var(--secondary-color);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+        
+        .hidden-content {
+            display: none;
+            background-color: rgba(255, 85, 85, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border: 1px solid var(--warning-color);
+        }
+        
+        .search-results {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-glitch"></div>
+    <div class="blog-container">
+        <header class="text-center">
+            <h1 class="glitch" data-text="李浩的技术笔记">李浩的技术笔记</h1>
+            <p class="subtitle">程序员 · 网络安全研究者 · 回声项目创始人</p>
+        </header>
+        
+        <input type="text" class="search-box" id="searchInput" placeholder="搜索博客内容...">
+        
+        <div class="blog-posts" id="blogPosts">
+            <div class="post">
+                <h2>回声项目：检测网络监控的新方法</h2>
+                <div class="post-meta">发布日期: 2018-05-28 | 分类: 技术研究</div>
+                <div class="post-content">
+                    <p>最近在开发一个名为"回声"的系统，它能够检测网络中是否存在隐蔽的监控行为。核心原理是利用...</p>
+                    <p>[文字描述：技术架构图 - 显示三层检测系统：网络流量分析、行为模式识别、异常信号捕捉]</p>
+                    
+                    <button class="btn btn-primary" onclick="revealContent('echo-details')">显示完整内容</button>
+                    <div class="hidden-content" id="echo-details">
+                        <p>回声系统的核心算法基于机器学习，能够识别出常规安全软件无法检测的隐蔽监控。</p>
+                        <p>我发现某些组织正在使用一种名为"守望者"的系统进行大规模网络监控...</p>
+                        <p>[文字描述：监控检测报告 - 显示多个被标记的可疑IP地址和监控模式]</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post">
+                <h2>CTF比赛中的密码学挑战解析</h2>
+                <div class="post-meta">发布日期: 2018-05-25 | 分类: 比赛记录</div>
+                <div class="post-content">
+                    <p>刚刚参加的CTF比赛中有一个有趣的密码学挑战，涉及RSA加密和时序攻击...</p>
+                    <p>[文字描述：比赛证书图片 - "全国CTF网络安全大赛一等奖 - 李浩 - 2018年5月23日"]</p>
+                    
+                    <button class="btn btn-primary" onclick="revealContent('ctf-details')">显示完整内容</button>
+                    <div class="hidden-content" id="ctf-details">
+                        <p>比赛在5月23日举行，我们团队解决了所有密码学挑战。其中一个挑战的解法后来给了我开发回声系统的灵感。</p>
+                        <p>有趣的是，比赛结束后有几个人来找我，询问关于网络监控检测的技术...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post">
+                <h2>数字幽灵现象观察记录</h2>
+                <div class="post-meta">发布日期: 2018-05-20 | 分类: 异常现象</div>
+                <div class="post-content">
+                    <p>最近在测试回声系统时，发现了一些无法解释的网络现象，我称之为"数字幽灵"...</p>
+                    <p>[文字描述：网络流量异常图 - 显示在凌晨3点出现的规律性异常数据包]</p>
+                    
+                    <button class="btn btn-primary" onclick="revealContent('ghost-details')">显示完整内容</button>
+                    <div class="hidden-content" id="ghost-details">
+                        <p>这些"数字幽灵"似乎在传递某种信息，但加密方式非常奇特。我怀疑这与守望者组织有关。</p>
+                        <p>昨晚凌晨3点，系统捕捉到了最强烈的一次信号，似乎包含重复的"救我"字样...</p>
+                        <p>如果有人看到这个，请小心。他们可能在监视...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="search-results" id="searchResults">
+            <!-- 搜索结果将在这里显示 -->
+        </div>
+
+        <!-- 添加导航链接 -->
+        <div class="navigation">
+            <a href="index.html" class="nav-btn">← 返回邮件系统</a>
+            <div>
+                <a href="ai-chat.html" class="nav-btn">AI聊天系统</a>
+                <a href="puzzle.html" class="nav-btn">文档拼图</a>
+                <a href="content.html" class="nav-btn">完整文档</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/search.js"></script>
+    <script src="data/game-data.js"></script>
+    <script>
+        function revealContent(id) {
+            const content = document.getElementById(id);
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+    <!-- 在现有JS之后添加 -->
+	<script src="js/ghost-messages.js"></script>
+</body>
+</html>
